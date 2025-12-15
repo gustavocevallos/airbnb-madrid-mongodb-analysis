@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "name": "Acogedor Loft en Malasaña - Ejemplo",
+    "host_id": 12345,
+    "host_name": "María García",
+    "neighbourhood": "Centro",
+    "latitude": 40.4259,
+    "longitude": -3.7050,
+    "room_type": "Entire home/apt",
+    "price": 85.0,
+    "minimum_nights": 2,
+    "number_of_reviews": 45,
+    "last_review": "2024-11-15",
+    "reviews_per_month": 3.2,
+    "calculated_host_listings_count": 2,
+    "availability_365": 300,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.7050, 40.4259]
+    }
+  },
+  {
+    "id": 2,
+    "name": "Estudio Moderno cerca del Retiro",
+    "host_id": 23456,
+    "host_name": "Carlos Martínez",
+    "neighbourhood": "Retiro",
+    "latitude": 40.4168,
+    "longitude": -3.6828,
+    "room_type": "Entire home/apt",
+    "price": 95.0,
+    "minimum_nights": 3,
+    "number_of_reviews": 78,
+    "last_review": "2024-12-01",
+    "reviews_per_month": 5.1,
+    "calculated_host_listings_count": 1,
+    "availability_365": 250,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.6828, 40.4168]
+    }
+  },
+  {
+    "id": 3,
+    "name": "Habitación Privada en Chamberí",
+    "host_id": 34567,
+    "host_name": "Ana López",
+    "neighbourhood": "Chamberí",
+    "latitude": 40.4381,
+    "longitude": -3.7051,
+    "room_type": "Private room",
+    "price": 45.0,
+    "minimum_nights": 1,
+    "number_of_reviews": 120,
+    "last_review": "2024-11-28",
+    "reviews_per_month": 8.3,
+    "calculated_host_listings_count": 1,
+    "availability_365": 365,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.7051, 40.4381]
+    }
+  },
+  {
+    "id": 4,
+    "name": "Apartamento de Lujo en Salamanca",
+    "host_id": 45678,
+    "host_name": "Roberto Sánchez",
+    "neighbourhood": "Salamanca",
+    "latitude": 40.4301,
+    "longitude": -3.6797,
+    "room_type": "Entire home/apt",
+    "price": 150.0,
+    "minimum_nights": 7,
+    "number_of_reviews": 34,
+    "last_review": "2024-10-20",
+    "reviews_per_month": 2.5,
+    "calculated_host_listings_count": 3,
+    "availability_365": 180,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.6797, 40.4301]
+    }
+  },
+  {
+    "id": 5,
+    "name": "Piso Compartido en Lavapiés",
+    "host_id": 56789,
+    "host_name": "Laura Fernández",
+    "neighbourhood": "Centro",
+    "latitude": 40.4087,
+    "longitude": -3.7008,
+    "room_type": "Shared room",
+    "price": 25.0,
+    "minimum_nights": 1,
+    "number_of_reviews": 89,
+    "last_review": "2024-12-05",
+    "reviews_per_month": 6.7,
+    "calculated_host_listings_count": 1,
+    "availability_365": 365,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.7008, 40.4087]
+    }
+  },
+  {
+    "id": 6,
+    "name": "Ático con Terraza en Malasaña",
+    "host_id": 67890,
+    "host_name": "David González",
+    "neighbourhood": "Centro",
+    "latitude": 40.4270,
+    "longitude": -3.7062,
+    "room_type": "Entire home/apt",
+    "price": 120.0,
+    "minimum_nights": 5,
+    "number_of_reviews": 56,
+    "last_review": "2024-11-10",
+    "reviews_per_month": 4.2,
+    "calculated_host_listings_count": 2,
+    "availability_365": 200,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.7062, 40.4270]
+    }
+  },
+  {
+    "id": 7,
+    "name": "Habitación Económica en Arganzuela",
+    "host_id": 78901,
+    "host_name": "Patricia Ruiz",
+    "neighbourhood": "Arganzuela",
+    "latitude": 40.3974,
+    "longitude": -3.6979,
+    "room_type": "Private room",
+    "price": 35.0,
+    "minimum_nights": 2,
+    "number_of_reviews": 145,
+    "last_review": "2024-12-08",
+    "reviews_per_month": 9.8,
+    "calculated_host_listings_count": 1,
+    "availability_365": 320,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.6979, 40.3974]
+    }
+  },
+  {
+    "id": 8,
+    "name": "Apartamento Familiar en Chamartín",
+    "host_id": 89012,
+    "host_name": "Miguel Torres",
+    "neighbourhood": "Chamartín",
+    "latitude": 40.4650,
+    "longitude": -3.6779,
+    "room_type": "Entire home/apt",
+    "price": 110.0,
+    "minimum_nights": 4,
+    "number_of_reviews": 67,
+    "last_review": "2024-11-25",
+    "reviews_per_month": 5.5,
+    "calculated_host_listings_count": 2,
+    "availability_365": 280,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.6779, 40.4650]
+    }
+  },
+  {
+    "id": 9,
+    "name": "Estudio en Moncloa",
+    "host_id": 90123,
+    "host_name": "Elena Moreno",
+    "neighbourhood": "Moncloa-Aravaca",
+    "latitude": 40.4365,
+    "longitude": -3.7197,
+    "room_type": "Entire home/apt",
+    "price": 70.0,
+    "minimum_nights": 1,
+    "number_of_reviews": 92,
+    "last_review": "2024-12-02",
+    "reviews_per_month": 7.1,
+    "calculated_host_listings_count": 1,
+    "availability_365": 340,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.7197, 40.4365]
+    }
+  },
+  {
+    "id": 10,
+    "name": "Habitación Vista al Parque",
+    "host_id": 12346,
+    "host_name": "Jorge Díaz",
+    "neighbourhood": "Retiro",
+    "latitude": 40.4152,
+    "longitude": -3.6844,
+    "room_type": "Private room",
+    "price": 55.0,
+    "minimum_nights": 2,
+    "number_of_reviews": 103,
+    "last_review": "2024-11-30",
+    "reviews_per_month": 6.9,
+    "calculated_host_listings_count": 1,
+    "availability_365": 310,
+    "location": {
+      "type": "Point",
+      "coordinates": [-3.6844, 40.4152]
+    }
+  }
+]

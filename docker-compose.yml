@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: airbnb_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: airbnb_madrid
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - airbnb_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación Python con Jupyter
+  app:
+    build: .
+    container_name: airbnb_app
+    restart: unless-stopped
+    ports:
+      - "8888:8888"  # Jupyter Notebook
+      - "8000:8000"  # Streamlit (futuro)
+    environment:
+      - MONGODB_URI=mongodb://admin:admin123@mongodb:27017/
+      - MONGODB_DB=airbnb_madrid
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - airbnb_network
+    command: jupyter
+
+  # Mongo Express (Admin UI)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: airbnb_mongo_express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    depends_on:
+      - mongodb
+    networks:
+      - airbnb_network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  airbnb_network:
+    driver: bridge
