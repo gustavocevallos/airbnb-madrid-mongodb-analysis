@@ -4,6 +4,8 @@ Script para importar TU PROPIO dataset de Airbnb
 Soporta CSV con cualquier número de columnas
 """
 
+from src.crud_operations import AirbnbCRUD
+from src.database import MongoDBConnection
 import os
 import sys
 import logging
@@ -15,8 +17,6 @@ from datetime import datetime
 # Agregar src al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.database import MongoDBConnection
-from src.crud_operations import AirbnbCRUD
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,10 +28,10 @@ logger = logging.getLogger(__name__)
 def analyze_columns(df: pd.DataFrame) -> dict:
     """
     Analiza las columnas del CSV y devuelve información útil
-    
+
     Args:
         df: DataFrame de Pandas
-        
+
     Returns:
         dict: Información sobre las columnas
     """
@@ -43,26 +43,28 @@ def analyze_columns(df: pd.DataFrame) -> dict:
         'has_price': 'price' in df.columns,
         'has_reviews': 'number_of_reviews' in df.columns
     }
-    
+
     return info
 
 
 def clean_custom_dataframe(df: pd.DataFrame, keep_all_columns: bool = False) -> pd.DataFrame:
     """
     Limpia y prepara TU DataFrame personalizado
-    
+
     Args:
         df: DataFrame original
         keep_all_columns: Si True, mantiene TODAS las columnas del CSV original
-        
+
     Returns:
         pd.DataFrame: DataFrame limpio
     """
+    import pandas as pd
     logger.info("🧹 Limpiando datos personalizados...")
-    
+
     # Si keep_all_columns es True, usar todas las columnas
     if keep_all_columns:
-        logger.info(f"📊 Manteniendo TODAS las columnas: {len(df.columns)} columnas")
+        logger.info(
+            f"📊 Manteniendo TODAS las columnas: {len(df.columns)} columnas")
     else:
         # Columnas importantes estándar de Airbnb
         important_cols = [
@@ -94,37 +96,39 @@ def clean_custom_dataframe(df: pd.DataFrame, keep_all_columns: bool = False) -> 
             'calculated_host_listings_count_shared_rooms',
             'reviews_per_month'
         ]
-        
+
         # Seleccionar solo columnas que existen
         available_cols = [col for col in important_cols if col in df.columns]
         df = df[available_cols].copy()
-        logger.info(f"📊 Columnas seleccionadas: {len(available_cols)} de {len(important_cols)} estándar")
-    
+        logger.info(
+            f"📊 Columnas seleccionadas: {len(available_cols)} de {len(important_cols)} estándar")
+
     # LIMPIEZA UNIVERSAL (aplica a cualquier dataset)
-    
+
     # 1. Limpiar precios (remover $ y convertir a float)
     if 'price' in df.columns:
         logger.info("💰 Limpiando campo 'price'...")
-        df['price'] = df['price'].replace('[\$,]', '', regex=True)
+        # FIX: Agregar r antes del string
+        df['price'] = df['price'].replace(r'[\$,]', '', regex=True)
         df['price'] = pd.to_numeric(df['price'], errors='coerce')
         df['price'] = df['price'].fillna(0)
-    
+
     # 2. Convertir fechas
-    date_columns = ['last_scraped', 'host_since', 'calendar_updated', 
+    date_columns = ['last_scraped', 'host_since', 'calendar_updated',
                     'first_review', 'last_review', 'calendar_last_scraped']
     for col in date_columns:
         if col in df.columns:
             logger.info(f"📅 Convirtiendo fecha: {col}")
             df[col] = pd.to_datetime(df[col], errors='coerce')
-    
+
     # 3. Convertir booleanos
-    boolean_columns = ['host_is_superhost', 'host_has_profile_pic', 
-                      'host_identity_verified', 'has_availability', 'instant_bookable']
+    boolean_columns = ['host_is_superhost', 'host_has_profile_pic',
+                       'host_identity_verified', 'has_availability', 'instant_bookable']
     for col in boolean_columns:
         if col in df.columns:
             logger.info(f"✓ Convirtiendo booleano: {col}")
             df[col] = df[col].map({'t': True, 'f': False})
-    
+
     # 4. Convertir porcentajes a float
     percentage_columns = ['host_response_rate', 'host_acceptance_rate']
     for col in percentage_columns:
@@ -132,17 +136,17 @@ def clean_custom_dataframe(df: pd.DataFrame, keep_all_columns: bool = False) -> 
             logger.info(f"% Convirtiendo porcentaje: {col}")
             df[col] = df[col].replace('%', '', regex=True)
             df[col] = pd.to_numeric(df[col], errors='coerce') / 100
-    
+
     # 5. Rellenar valores nulos comunes
     if 'reviews_per_month' in df.columns:
         df['reviews_per_month'] = df['reviews_per_month'].fillna(0)
-    
+
     if 'name' in df.columns:
         df['name'] = df['name'].fillna('Sin nombre')
-    
+
     if 'host_name' in df.columns:
         df['host_name'] = df['host_name'].fillna('Sin nombre')
-    
+
     # 6. Crear campo de ubicación geoespacial (GeoJSON)
     if 'latitude' in df.columns and 'longitude' in df.columns:
         logger.info("🗺️ Creando campo geoespacial 'location'...")
@@ -158,10 +162,27 @@ def clean_custom_dataframe(df: pd.DataFrame, keep_all_columns: bool = False) -> 
         df = df[df['location'].notna()]
         removed = original_count - len(df)
         if removed > 0:
-            logger.warning(f"⚠️ Removidos {removed} registros sin coordenadas válidas")
-    
-    logger.info(f"✅ Datos limpios: {len(df)} registros, {len(df.columns)} columnas")
-    
+            logger.warning(
+                f"⚠️ Removidos {removed} registros sin coordenadas válidas")
+
+    # 7. CRÍTICO: Convertir NaT/NaN a None para MongoDB
+    logger.info("🔧 Convirtiendo valores NaT/NaN a None para MongoDB...")
+
+    # Convertir fechas NaT a None
+    date_columns = ['last_scraped', 'host_since', 'calendar_updated',
+                    'first_review', 'last_review', 'calendar_last_scraped']
+    for col in date_columns:
+        if col in df.columns:
+            # Reemplazar NaT con None
+            df[col] = df[col].apply(lambda x: None if pd.isna(x) else x)
+
+    # Convertir NaN numéricos a None
+    for col in df.select_dtypes(include=['float64', 'int64']).columns:
+        df[col] = df[col].apply(lambda x: None if pd.isna(x) else x)
+
+    logger.info(
+        f"✅ Datos limpios: {len(df)} registros, {len(df.columns)} columnas")
+
     return df
 
 
@@ -175,7 +196,7 @@ def import_custom_data(
 ) -> None:
     """
     Importa TU dataset personalizado de Airbnb a MongoDB
-    
+
     Args:
         csv_path: Ruta del archivo CSV
         collection_name: Nombre de la colección en MongoDB
@@ -186,78 +207,82 @@ def import_custom_data(
     """
     try:
         logger.info(f"📖 Leyendo archivo: {csv_path}")
-        
+
         # Leer CSV
         df = pd.read_csv(csv_path, low_memory=False)
         logger.info(f"✅ Archivo cargado: {len(df):,} registros")
-        
+
         # Analizar columnas
         info = analyze_columns(df)
         logger.info(f"\n📊 ANÁLISIS DEL DATASET:")
         logger.info(f"  - Total de filas: {info['total_rows']:,}")
         logger.info(f"  - Total de columnas: {info['total_columns']}")
-        logger.info(f"  - Tiene coordenadas: {'✅ Sí' if info['has_location'] else '❌ No'}")
-        logger.info(f"  - Tiene precios: {'✅ Sí' if info['has_price'] else '❌ No'}")
-        logger.info(f"  - Tiene reviews: {'✅ Sí' if info['has_reviews'] else '❌ No'}")
-        
+        logger.info(
+            f"  - Tiene coordenadas: {'✅ Sí' if info['has_location'] else '❌ No'}")
+        logger.info(
+            f"  - Tiene precios: {'✅ Sí' if info['has_price'] else '❌ No'}")
+        logger.info(
+            f"  - Tiene reviews: {'✅ Sí' if info['has_reviews'] else '❌ No'}")
+
         # Mostrar primeras columnas
         logger.info(f"\n📋 Primeras 10 columnas: {info['columns'][:10]}")
-        
+
         # Aplicar sample si se especifica
         if sample_size > 0:
             df = df.sample(n=min(sample_size, len(df)), random_state=42)
             logger.info(f"📊 Usando muestra de {len(df):,} registros")
-        
+
         # Limpiar datos
         df = clean_custom_dataframe(df, keep_all_columns=keep_all_columns)
-        
+
         # Conectar a MongoDB
         logger.info("🔌 Conectando a MongoDB...")
         conn = MongoDBConnection()
         crud = AirbnbCRUD(collection_name=collection_name)
-        
+
         # Verificar si la colección ya tiene datos
         existing_count = crud.get_total_listings()
         if existing_count > 0:
-            logger.warning(f"⚠️ La colección '{collection_name}' ya tiene {existing_count:,} documentos")
+            logger.warning(
+                f"⚠️ La colección '{collection_name}' ya tiene {existing_count:,} documentos")
             if clear_existing:
                 logger.info("🗑️ Eliminando datos existentes...")
                 crud.collection.delete_many({})
                 logger.info("✅ Datos existentes eliminados")
             else:
                 logger.info("⏭️ Agregando datos sin eliminar existentes")
-        
+
         # Convertir a documentos
         documents = df.to_dict('records')
-        
+
         # Importar en lotes
         logger.info(f"📥 Importando {len(documents):,} documentos...")
-        
+
         total_inserted = 0
         for i in tqdm(range(0, len(documents), batch_size), desc="Importando"):
             batch = documents[i:i+batch_size]
-            
+
             # Agregar metadata
             for doc in batch:
                 doc['imported_at'] = datetime.now()
                 doc['source'] = 'custom_import'
-            
+
             result = crud.create_many_listings(batch)
             total_inserted += len(result.inserted_ids)
-        
+
         logger.info(f"✅ Importación completada: {total_inserted:,} documentos")
-        
+
         # Crear índices
         logger.info("📑 Creando índices...")
         conn.create_indexes(collection_name)
-        
+
         # Mostrar estadísticas
         stats = conn.get_collection_stats(collection_name)
         logger.info(f"\n📊 ESTADÍSTICAS DE LA COLECCIÓN '{collection_name}':")
         logger.info(f"  - Documentos: {stats['count']:,}")
         logger.info(f"  - Tamaño: {stats['size'] / 1024 / 1024:.2f} MB")
         logger.info(f"  - Índices: {stats['indexes']}")
-        
+
         # Estadísticas de datos
         if 'price' in df.columns:
             logger.info(f"\n💰 ESTADÍSTICAS DE PRECIOS:")
@@ -266,24 +291,25 @@ def import_custom_data(
             logger.info(f"  - Mediana: {price_stats['50%']:.2f}€")
             logger.info(f"  - Mínimo: {price_stats['min']:.2f}€")
             logger.info(f"  - Máximo: {price_stats['max']:.2f}€")
-        
+
         if 'neighbourhood' in df.columns or 'neighbourhood_cleansed' in df.columns:
             col = 'neighbourhood_cleansed' if 'neighbourhood_cleansed' in df.columns else 'neighbourhood'
             logger.info(f"\n🏘️ BARRIOS:")
             logger.info(f"  - Barrios únicos: {df[col].nunique()}")
-        
+
         if 'room_type' in df.columns:
             logger.info(f"\n🏠 TIPOS DE ALOJAMIENTO:")
             logger.info(f"  - Tipos únicos: {df['room_type'].nunique()}")
             logger.info(f"  - Distribución:")
             for room_type, count in df['room_type'].value_counts().head(5).items():
-                logger.info(f"    • {room_type}: {count:,} ({count/len(df)*100:.1f}%)")
-        
+                logger.info(
+                    f"    • {room_type}: {count:,} ({count/len(df)*100:.1f}%)")
+
         logger.info(f"\n🎉 ¡IMPORTACIÓN EXITOSA!")
         logger.info(f"📝 Colección: {collection_name}")
         logger.info(f"📊 Total documentos: {total_inserted:,}")
         logger.info(f"📁 Columnas: {len(df.columns)}")
-        
+
     except FileNotFoundError:
         logger.error(f"❌ Archivo no encontrado: {csv_path}")
         sys.exit(1)
@@ -297,7 +323,7 @@ def import_custom_data(
 def main():
     """Función principal"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description='Importar tu propio dataset de Airbnb a MongoDB'
     )
@@ -326,19 +352,19 @@ def main():
         action='store_true',
         help='NO eliminar datos existentes antes de importar'
     )
-    
+
     args = parser.parse_args()
-    
+
     print("\n" + "="*70)
     print("📥 IMPORTACIÓN DE DATASET PERSONALIZADO DE AIRBNB")
     print("="*70 + "\n")
-    
+
     csv_path = Path(args.csv_file)
-    
+
     if not csv_path.exists():
         logger.error(f"❌ El archivo no existe: {csv_path}")
         sys.exit(1)
-    
+
     # Importar datos
     import_custom_data(
         csv_path=csv_path,
@@ -347,7 +373,7 @@ def main():
         keep_all_columns=args.keep_all,
         clear_existing=not args.no_clear
     )
-    
+
     print("\n" + "="*70)
     print("🎉 ¡IMPORTACIÓN COMPLETADA!")
     print("="*70)
