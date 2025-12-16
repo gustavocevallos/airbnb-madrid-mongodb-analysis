@@ -464,22 +464,21 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 - 🎓 MSc Data Science & Big Data - Universidad Complutense Madrid
 - 💼 Tax Consultant | Data Scientist | AI Specialist
 - 🌍 Madrid, España
-- LinkedIn: [Tu perfil de LinkedIn]
-- GitHub: [@tuusername](https://github.com/tuusername)
-- Email: tu-email@ejemplo.com
+- LinkedIn: https://www.linkedin.com/in/gustavocevallosp/
+- GitHub: @gustavocevallos | https://github.com/gustavocevallos
+- Email: gcevallos@dattax.ec
 
 ## 🙏 Agradecimientos
 
 - **Inside Airbnb**: Por proveer los datos abiertos de Airbnb
 - **MongoDB**: Por su excelente documentación
 - **Plotly**: Por la increíble librería de visualización
-- **Universidad Complutense Madrid**: Por el programa de Data Science
 
 ## 📊 Dataset
 
 Los datos utilizados provienen de [Inside Airbnb](http://insideairbnb.com/get-the-data.html) - Madrid, España.
 
-**Última actualización**: Diciembre 2024  
+**Última actualización**: 2025 
 **Registros**: ~18,000 listings  
 **Campos principales**: name, neighbourhood, room_type, price, availability, reviews, coordinates
 
@@ -487,6 +486,6 @@ Los datos utilizados provienen de [Inside Airbnb](http://insideairbnb.com/get-th
 
 ⭐ **Si este proyecto te resultó útil, considera darle una estrella en GitHub**
 
-🐛 **¿Encontraste un bug?** [Reporta un issue](https://github.com/tuusername/airbnb-madrid-mongodb-analysis/issues)
+🐛 **¿Encontraste un bug?** [Reporta un issue](https://github.com/gustavocevallos/airbnb-madrid-mongodb-analysis/issues)
 
-💬 **¿Tienes preguntas?** [Inicia una discusión](https://github.com/tuusername/airbnb-madrid-mongodb-analysis/discussions)
+💬 **¿Tienes preguntas?** [Inicia una discusión](https://github.com/gustavocevallos/airbnb-madrid-mongodb-analysis/discussions)
